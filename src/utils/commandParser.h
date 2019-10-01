@@ -1,6 +1,9 @@
 #ifndef COMMANDPARSER
 #define COMMANDPARSER
 
+#define TIMESTAMP_SIZE 19
+#define COMMAND_VALUE_STEP 10
+
 typedef enum commandType {
   addElement,
   deleteElement,
@@ -10,7 +13,8 @@ typedef enum commandType {
 } commandType;
 typedef struct command {
   commandType type;
-  char *timestamp;
+  char timestamp[TIMESTAMP_SIZE];
+  char* value;
 } command;
 
 command *parseCommand();
