@@ -1,18 +1,32 @@
 #ifndef BTREE
 #define BTREE
 
-#define TIMESTAMP_SIZE 19
-#define NUMBER_OF_BTREE_KEYS 10
+#include "globs.h"
+
+#define BTREE_PATH_SIZE 5
+
+typedef struct btreeElement {
+  /* A value of NULL means it's a tombstone */
+  char *value;
+  char key[TIMESTAMP_SIZE];
+} btreeElement;
 
 typedef struct btree {
-  struct btree *children[NUMBER_OF_BTREE_KEYS+1];
-  char* keys[NUMBER_OF_BTREE_KEYS];
-  char timestamp[TIMESTAMP_SIZE];
-  unsigned int tombstone : 1;
-  char *value;
+  struct btree *children[NUMBER_OF_BTREE_KEYS + 1];
+  btreeElement *elements[NUMBER_OF_BTREE_KEYS];
+  short numberOfKeys;
 } btree;
 
+btreeElement *allocateBtreeElement();
+int compareBtreeElements(btreeElement *e1, btreeElement *e2);
+void freeBtreeElement(btreeElement *tree);
 btree *allocateBtree();
-btree *addToBtree(btree *root, char timestamp[], char *value);
+btree *addToBtree(btree *root, btreeElement *element);
+btreeElement *addElementToBtreeLeaf(btree **tree, btreeElement *element,
+                                    int index);
+btreeElement *addElementToBtreeChild(btree **tree, btreeElement *element,
+                                     int index);
+btreeElement *searchElement(btree *tree, btreeElement *element);
+void freeBtree(btree *tree);
 
 #endif

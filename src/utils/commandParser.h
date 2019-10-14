@@ -1,7 +1,7 @@
 #ifndef COMMANDPARSER
 #define COMMANDPARSER
 
-#define TIMESTAMP_SIZE 19
+#include "globs.h"
 #define COMMAND_VALUE_STEP 10
 
 typedef enum commandType {
