@@ -1,10 +1,10 @@
+#include "utils/globs.h"
 #include "utils/btree.h"
 #include "utils/commandParser.h"
 #include "utils/misc.h"
 #include <stdio.h>
 #include <string.h>
 
-/* #define DEBUG */
 
 int main(int argc, char *argv[]) {
 #ifdef DEBUG
@@ -30,22 +30,23 @@ int main(int argc, char *argv[]) {
     } else if (c->type == queryElement) {
       btreeElement *element = allocateBtreeElement();
       strncpy(element->key, c->timestamp, TIMESTAMP_SIZE);
-      btreeElement *result = searchElement(tree, element);
+      btreeElement *result = searchElement(tree, element, NULL);
       if (result != NULL && result->value != NULL)
         printf("!%s\n", result->value);
       else
-              printf("?\n");
+        printf("?\n");
       freeBtreeElement(element);
     } else if (c->type == queryRange) {
     } else {
       printf("Unable to parse commands correctly\n");
       return 1;
     }
+#ifdef DEBUG
+    printf("Number of keys: %d\n", tree->numberOfKeys);
+    printf("\n");
+#endif
     freeCommand(c);
     ch = getc(stdin);
-#ifdef DEBUG
-    printf("%d\n", ch == EOF);
-#endif
   }
   freeBtree(tree);
   return 0;

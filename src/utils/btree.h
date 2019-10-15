@@ -12,9 +12,9 @@ typedef struct btreeElement {
 } btreeElement;
 
 typedef struct btree {
-  struct btree *children[NUMBER_OF_BTREE_KEYS + 1];
-  btreeElement *elements[NUMBER_OF_BTREE_KEYS];
   short numberOfKeys;
+  btreeElement *elements[NUMBER_OF_BTREE_KEYS];
+  struct btree *children[NUMBER_OF_BTREE_KEYS + 1];
 } btree;
 
 btreeElement *allocateBtreeElement();
@@ -26,7 +26,7 @@ btreeElement *addElementToBtreeLeaf(btree **tree, btreeElement *element,
                                     int index);
 btreeElement *addElementToBtreeChild(btree **tree, btreeElement *element,
                                      int index);
-btreeElement *searchElement(btree *tree, btreeElement *element);
+btreeElement *searchElement(btree *tree, btreeElement *element, int**path);
 void freeBtree(btree *tree);
 
 #endif
