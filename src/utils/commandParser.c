@@ -8,13 +8,13 @@
 commandType charToCommandType(char c) {
   switch (c) {
   case '+':
-    return addElement;
+    return commandAddElement;
   case '-':
-    return deleteElement;
+    return commandDeleteElement;
   case '?':
-    return queryElement;
+    return commandQueryElement;
   case '#':
-    return queryRange;
+    return commandQueryRange;
   default:
     return unknownCommand;
   }
@@ -25,18 +25,18 @@ command *parseCommand() {
   char c = getc(stdin);
   retval->type = charToCommandType(c);
   int i = 0;
-  while (i < TIMESTAMP_SIZE) {
+  while (i < TIMESTAMP_SIZE - 1) {
     retval->timestamp[i] = getc(stdin);
     i++;
   }
-  /* retval->timestamp[TIMESTAMP_SIZE - 1] = '\0'; */
+  retval->timestamp[TIMESTAMP_SIZE - 1] = '\0';
   /* regexMatch op [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2} */
-  if (retval->type == addElement) {
+  if (retval->type == commandAddElement) {
     c = getc(stdin);
     if ((char)c != ' ')
       retval->type = unknownCommand;
     else {
-      int currentSize = COMMAND_VALUE_STEP;
+      int currentSize = COMMAND_VALUE_START;
       int index = 0;
       char *value = nullSafeMalloc(currentSize * sizeof(char));
       int ch = getc(stdin);
@@ -45,8 +45,8 @@ command *parseCommand() {
         ch = getc(stdin);
         index++;
         if (index + 1 == currentSize) {
-          currentSize += COMMAND_VALUE_STEP;
-          value = realloc(value, currentSize * sizeof(char));
+          currentSize *= COMMAND_VALUE_MULTIPLY_STEP;
+          value = nullSafeRealloc(value, currentSize * sizeof(char));
         }
       }
       value[index] = '\0';
@@ -63,8 +63,8 @@ command *parseCommand() {
 }
 
 void freeCommand(command *c) {
-  /* if (c->value != NULL) { */
-  /*   free(c->value); */
-  /* } */
+  if (c->value != NULL) {
+    free(c->value);
+  }
   free(c);
 }

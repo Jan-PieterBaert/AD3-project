@@ -3,8 +3,6 @@
 
 #include "globs.h"
 
-#define BTREE_PATH_SIZE 5
-
 typedef struct btreeElement {
   /* A value of NULL means it's a tombstone */
   char *value;
@@ -13,20 +11,28 @@ typedef struct btreeElement {
 
 typedef struct btree {
   short numberOfKeys;
+  struct btree *parent;
   btreeElement *elements[NUMBER_OF_BTREE_KEYS];
   struct btree *children[NUMBER_OF_BTREE_KEYS + 1];
 } btree;
 
+/* Struct used for adding an element to a btree */
+typedef struct tempBtree {
+  struct btreeElement *element;
+  struct btree *children[2];
+} tempBtree;
+
+void printBtree(btree *tree, int depth);
 btreeElement *allocateBtreeElement();
-int compareBtreeElements(btreeElement *e1, btreeElement *e2);
 void freeBtreeElement(btreeElement *tree);
 btree *allocateBtree();
-btree *addToBtree(btree *root, btreeElement *element);
-btreeElement *addElementToBtreeLeaf(btree **tree, btreeElement *element,
-                                    int index);
-btreeElement *addElementToBtreeChild(btree **tree, btreeElement *element,
-                                     int index);
-btreeElement *searchElement(btree *tree, btreeElement *element, int**path);
 void freeBtree(btree *tree);
+tempBtree* allocateTempBtree();
+void freeTempBtree(tempBtree* tree);
+
+int compareBtreeElements(btreeElement *e1, btreeElement *e2);
+btree *addToBtree(btree *root, tempBtree *element);
+btree *searchElement(btree *tree, btreeElement *element, int *index);
+void deleteElement(btree* tree, btreeElement* element);
 
 #endif
