@@ -11,6 +11,7 @@ void printBtree(btree *tree, int depth) {
            tree->elements[i]->value);
   for (int i = 0; i < tree->numberOfKeys + 1 && tree->children[i] != NULL;
        i++) {
+    printf("\n");
     printf("Printing child %d\n", i);
     printBtree(tree->children[i], depth + 1);
   }
@@ -106,11 +107,13 @@ tempBtree *insertTempBtreeInBtree(btree **t, tempBtree *element, int *index) {
         children[j] = tree->children[j];
       children[i] = element->children[0];
       children[i + 1] = element->children[1];
-      for (int j = i + 2; j < NUMBER_OF_BTREE_KEYS + 2; j++)
-        children[j] = tree->children[j - 2];
+      for (int j = i; j < NUMBER_OF_BTREE_KEYS + 1; j++)
+        children[j + 2] = tree->children[j];
       for (int i = 0; i < NUMBER_OF_BTREE_KEYS / 2 + 1; i++) {
         leftTree->children[i] = children[i];
-        rightTree->children[i] = children[i + NUMBER_OF_BTREE_KEYS / 2 + 1];
+        leftTree->children[i]->parent = leftTree;
+        rightTree->children[i] = children[i + NUMBER_OF_BTREE_KEYS / 2 + 2];
+        rightTree->children[i]->parent = rightTree;
       }
       retval->children[0] = children[NUMBER_OF_BTREE_KEYS / 2];
       retval->children[1] = children[NUMBER_OF_BTREE_KEYS / 2 + 1];

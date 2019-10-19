@@ -32,6 +32,12 @@ int main(int argc, char *argv[]) {
       tempTree->element = element;
       tree = addToBtree(tree, tempTree);
       freeTempBtree(tempTree);
+#ifdef DEBUG
+      printBtree(tree, 100);
+      printf("   -------------------------------------   \n");
+      printf("-------------------------------------------\n");
+      printf("\n");
+#endif
 
     } else if (c->type == commandDeleteElement) {
       btreeElement *element = allocateBtreeElement();
@@ -50,21 +56,28 @@ int main(int argc, char *argv[]) {
       freeBtreeElement(element);
 
     } else if (c->type == commandQueryRange) {
+      printf("0\n");
     } else
       printErrorAndExit(UNKNOWN_COMMAND_EXIT_CODE,
                         "Unable to parse commands correctly");
 
-#ifdef DEBUG
-    printf("Number of keys in root: %d\n", tree->numberOfKeys);
-    printf("Root elements:\n");
-    for (int i = 0; i < tree->numberOfKeys; i++)
-      printf("-- key: %s | value: %s\n", tree->elements[i]->key,
-             tree->elements[i]->value);
-    printf("\n");
-#endif
+    /* #ifdef DEBUG */
+    /*     printf("Number of keys in root: %d\n", tree->numberOfKeys); */
+    /*     printf("Root elements:\n"); */
+    /*     for (int i = 0; i < tree->numberOfKeys; i++) */
+    /*       printf("-- key: %s | value: %s\n", tree->elements[i]->key, */
+    /*              tree->elements[i]->value); */
+    /*     printf("\n"); */
+    /* #endif */
     freeCommand(c);
     ch = getc(stdin);
   }
-  /* printBtree(tree, 0); */
+#ifdef DEBUG
+  printf("   -------------------------------------   \n");
+  printf("-------------------------------------------\n");
+  printf("   -------------------------------------   \n");
+  printBtree(tree, 0);
+#endif
   return 0;
+#undef DEBUG
 }
