@@ -2,6 +2,7 @@
 #define BTREE
 
 #include "globs.h"
+#include <stdbool.h>
 
 typedef struct btreeElement {
   /* A value of NULL means it's a tombstone */
@@ -32,7 +33,7 @@ void freeTempBtree(tempBtree* tree);
 
 int compareBtreeElements(btreeElement *e1, btreeElement *e2);
 btree *addToBtree(btree *root, tempBtree *element);
-btree *searchElement(btree *tree, btreeElement *element, int *index);
+btree *searchElement(btree *tree, btreeElement *element, int *index, bool *found);
 void deleteElement(btree* tree, btreeElement* element);
 
 #endif

@@ -1,6 +1,9 @@
 #ifndef GLOBAL_VARS
 #define GLOBAL_VARS
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 #define TIMESTAMP_SIZE 20
 #define NUMBER_OF_BTREE_KEYS 200
 

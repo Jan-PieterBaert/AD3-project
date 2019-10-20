@@ -133,7 +133,6 @@ tempBtree *insertTempBtreeInBtree(btree **t, tempBtree *element, int *index) {
     }
     retval->children[0] = leftTree;
     retval->children[1] = rightTree;
-
 #ifdef DEBUG
     printf("TO UP KEY: %s\n", retval->element->key);
     for (int k = 0; k < NUMBER_OF_BTREE_KEYS + 1; k++) {
@@ -146,22 +145,16 @@ tempBtree *insertTempBtreeInBtree(btree **t, tempBtree *element, int *index) {
 }
 
 btree *addToBtree(btree *root, tempBtree *element) {
-  /* Find index where to insert, then insert element */
   int treeIndex = 0;
-  btree *tree = searchElement(root, element->element, &treeIndex);
-  if (treeIndex > -1) {
+  bool found = false;
+  btree *tree = searchElement(root, element->element, &treeIndex, &found);
+  if (found) {
+    /* If the element is already in the tree, change the value*/
     free(tree->elements[treeIndex]->value);
     tree->elements[treeIndex]->value = element->element->value;
-    element->element->value = NULL;
   } else {
-    int i = 0;
-    /* Find the index where we need to insert (TODO change this search to binary
-     * search)
-     */
-    while (i < tree->numberOfKeys &&
-           compareBtreeElements(tree->elements[i], element->element) < 0) {
-      i++;
-    }
+    /* The index where we need to insert is the index found by searching*/
+    int i = treeIndex;
 
     /*
      * Insert in the subtree (with function)
@@ -176,15 +169,16 @@ btree *addToBtree(btree *root, tempBtree *element) {
     while (temp != NULL && tree->parent != NULL) {
       tree = tree->parent;
       i = 0;
-      while (i < tree->numberOfKeys &&
-             compareBtreeElements(tree->elements[i], temp->element) < 0) {
-        i++;
-      }
-      temp = insertTempBtreeInBtree(&tree, temp, &i);
+      found = false;
+      searchElement(tree, temp->element, &i, &found);
+      tempBtree *nextTemp = insertTempBtreeInBtree(&tree, temp, &i);
+      freeTempBtree(temp);
+      temp = nextTemp;
     }
 
-    /* Change the root */
+    /* Change the root if it's needed*/
     if (temp != NULL && tree->parent == NULL) {
+      freeBtree(root);
       btree *newRoot = allocateBtree();
       newRoot->elements[0] = temp->element;
       newRoot->children[0] = temp->children[0];
@@ -192,20 +186,21 @@ btree *addToBtree(btree *root, tempBtree *element) {
       newRoot->numberOfKeys = 1;
       newRoot->children[0]->parent = newRoot;
       newRoot->children[1]->parent = newRoot;
-      return newRoot;
+      root = newRoot;
     }
+    freeTempBtree(temp);
   }
   return root;
 }
 
-btree *searchElement(btree *tree, btreeElement *element, int *treeIndex) {
-  *treeIndex = -1;
+btree *searchElement(btree *tree, btreeElement *element, int *treeIndex,
+                     bool *found) {
+  *treeIndex = 0;
   if (tree->numberOfKeys == 0)
     return tree;
   int middle = 0;
-  char found = 0;
-  char isLeaf = 0;
-  while (!found && !isLeaf) {
+  bool isLeaf = false;
+  while (!*found && !isLeaf) {
     middle = 0;
     int lowerBound = 0;
     int higherBound = tree->numberOfKeys - 1;
@@ -215,27 +210,27 @@ btree *searchElement(btree *tree, btreeElement *element, int *treeIndex) {
       middle++;
     short cmpvalue = compareBtreeElements(tree->elements[middle], element);
     if (cmpvalue == 0)
-      found = 1;
+      *found = true;
     else {
       if (cmpvalue < 0)
         middle++;
       btree *newTree = tree->children[middle];
       if (newTree == NULL)
-        isLeaf = 1;
+        /* When the tree is actually a leaf stop searching */
+        isLeaf = true;
       else
         tree = newTree;
-      /* When the tree is actually a leaf */
     }
   }
-  if (found)
-    *treeIndex = middle;
+  *treeIndex = middle;
   return tree;
 }
 
 void deleteElement(btree *root, btreeElement *element) {
   int treeIndex = 0;
-  btree *tree = searchElement(root, element, &treeIndex);
-  if (treeIndex > -1) {
+  bool found = false;
+  btree *tree = searchElement(root, element, &treeIndex, &found);
+  if (found) {
     /* Make the element a tombstone */
     free(tree->elements[treeIndex]->value);
     tree->elements[treeIndex]->value = NULL;
