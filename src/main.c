@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
     ch = getc(stdin);
   }
 #ifdef DEBUG
-  printBtree(tree);
+  printBtree(tree, 0);
 #endif
-  freeBtree(tree);
+  /* freeBtree(tree); */
   return 0;
 }

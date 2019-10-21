@@ -28,12 +28,15 @@ btreeElement *allocateBtreeElement();
 void freeBtreeElement(btreeElement *tree);
 btree *allocateBtree();
 void freeBtree(btree *tree);
-tempBtree* allocateTempBtree();
-void freeTempBtree(tempBtree* tree);
+tempBtree *allocateTempBtree();
+void freeTempBtree(tempBtree *tree);
 
 int compareBtreeElements(btreeElement *e1, btreeElement *e2);
 btree *addToBtree(btree *root, tempBtree *element);
-btree *searchElement(btree *tree, btreeElement *element, int *index, bool *found);
-void deleteElement(btree* tree, btreeElement* element);
+btree *searchElement(btree *tree, btreeElement *element, int *index,
+                     bool *found);
+btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
+                            bool *found, int maxDepth);
+void deleteElement(btree *tree, btreeElement *element);
 
 #endif

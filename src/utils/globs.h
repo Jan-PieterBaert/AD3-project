@@ -5,7 +5,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define TIMESTAMP_SIZE 20
-#define NUMBER_OF_BTREE_KEYS 200
+#define NUMBER_OF_BTREE_KEYS 2
 
 #define NOT_IMPLEMENTED_YET_EXIT_CODE 27
 
