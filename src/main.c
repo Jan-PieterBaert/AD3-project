@@ -17,10 +17,10 @@ int main(int argc, char *argv[]) {
     ungetc(ch, stdin);
     command *c = parseCommand();
 
-#ifdef DEBUG
-    printf("Timestamp: %s | Command: %d | Value: %s\n", c->timestamp,
-           (int)c->type, c->value);
-#endif
+/* #ifdef DEBUG */
+/*     printf("Timestamp: %s | Command: %d | Value: %s\n", c->timestamp, */
+/*            (int)c->type, c->value); */
+/* #endif */
 
     if (c->type == commandAddElement) {
       btreeElement *element = allocateBtreeElement();
