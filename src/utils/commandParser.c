@@ -24,13 +24,9 @@ command *parseCommand() {
   command *retval = (command *)nullSafeMalloc(sizeof(command));
   char c = getc(stdin);
   retval->type = charToCommandType(c);
-  int i = 0;
-  while (i < TIMESTAMP_SIZE - 1) {
+  for (int i = 0; i < TIMESTAMP_SIZE - 1; i++)
     retval->timestamp[i] = getc(stdin);
-    i++;
-  }
   retval->timestamp[TIMESTAMP_SIZE - 1] = '\0';
-  /* regexMatch op [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2} */
   if (retval->type == commandAddElement) {
     c = getc(stdin);
     if ((char)c != ' ')
@@ -51,6 +47,18 @@ command *parseCommand() {
       }
       value[index] = '\0';
       retval->value = value;
+    }
+  } else if (retval->type == commandQueryRange) {
+    if ((char)getc(stdin) != ' ')
+      retval->type = unknownCommand;
+
+    retval->value = nullSafeMalloc(sizeof(char) * TIMESTAMP_SIZE);
+    for (int i = 0; i < TIMESTAMP_SIZE - 1; i++)
+      retval->value[i] = getc(stdin);
+    retval->value[TIMESTAMP_SIZE - 1] = '\0';
+    char ch = getc(stdin);
+    while (ch != EOF && ((char)ch != '\n')) {
+      ch = getc(stdin);
     }
   } else {
     int ch = getc(stdin);

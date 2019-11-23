@@ -301,9 +301,40 @@ void deleteElement(btree *root, btreeElement *element) {
   int treeIndex = 0;
   bool found = false;
   btree *tree = searchElement(root, element, &treeIndex, &found);
-  if (found) {
+  if (found && tree->elements[treeIndex]->value != NULL) {
     /* Make the element a tombstone */
     free(tree->elements[treeIndex]->value);
     tree->elements[treeIndex]->value = NULL;
+    printf("-\n");
+  } else
+    printf("?\n");
+}
+
+int rangeQuery(btree *tree, char *lowerBound, char *upperBound) {
+  int retval = 0;
+  short treeHasChildren = tree->children[0] != NULL;
+  short numberOfKeysInTree = tree->numberOfKeys;
+
+  short cmpvalue = strcmp(tree->elements[0]->key, lowerBound);
+  if (cmpvalue > 0 && treeHasChildren)
+    retval += rangeQuery(tree->children[0], lowerBound, upperBound);
+
+  for (int i = 0; i < numberOfKeysInTree; i++)
+    if (tree->elements[i]->value != NULL &&
+        strcmp(tree->elements[i]->key, lowerBound) >= 0 &&
+        strcmp(tree->elements[i]->key, upperBound) <= 0)
+      ++retval;
+
+  for (int childIndex = 1; childIndex < numberOfKeysInTree; childIndex++) {
+    short cmpvalue1 = strcmp(tree->elements[childIndex]->key, lowerBound);
+    short cmpvalue2 = strcmp(tree->elements[childIndex - 1]->key, upperBound);
+    if ((cmpvalue1 > 0 || cmpvalue2 < 0) && treeHasChildren)
+      retval += rangeQuery(tree->children[childIndex], lowerBound, upperBound);
   }
+
+  cmpvalue = strcmp(tree->elements[numberOfKeysInTree - 1]->key, upperBound);
+  if (cmpvalue < 0 && treeHasChildren)
+    retval +=
+        rangeQuery(tree->children[numberOfKeysInTree], lowerBound, upperBound);
+  return retval;
 }
