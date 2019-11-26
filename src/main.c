@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     } else if (c->type == commandQueryRange) {
       int numberInQuery;
-      if (strcmp(c->timestamp, c->value))
+      if (strcmp(c->timestamp, c->value)<=0)
         numberInQuery = rangeQuery(tree, c->timestamp, c->value);
       else
         numberInQuery = rangeQuery(tree, c->value, c->timestamp);
@@ -76,6 +76,6 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG
   printBtree(tree, 0);
 #endif
-  /* freeBtree(tree); */
+  freeBtree(tree);
   return 0;
 }
