@@ -52,7 +52,11 @@ int main(int argc, char *argv[]) {
       freeBtreeElement(element);
 
     } else if (c->type == commandQueryRange) {
-      int numberInQuery = rangeQuery(tree, c->timestamp, c->value);
+      int numberInQuery;
+      if (strcmp(c->timestamp, c->value))
+        numberInQuery = rangeQuery(tree, c->timestamp, c->value);
+      else
+        numberInQuery = rangeQuery(tree, c->value, c->timestamp);
       printf("%d\n", numberInQuery);
     } else
       printErrorAndExit(UNKNOWN_COMMAND_EXIT_CODE,

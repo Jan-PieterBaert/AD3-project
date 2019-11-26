@@ -314,6 +314,8 @@ int rangeQuery(btree *tree, char *lowerBound, char *upperBound) {
   int retval = 0;
   short treeHasChildren = tree->children[0] != NULL;
   short numberOfKeysInTree = tree->numberOfKeys;
+  if(numberOfKeysInTree == 0)
+      return 0;
 
   short cmpvalue = strcmp(tree->elements[0]->key, lowerBound);
   if (cmpvalue > 0 && treeHasChildren)
