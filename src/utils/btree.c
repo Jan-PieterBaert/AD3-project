@@ -266,7 +266,25 @@ btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
     middle = 0;
     int lowerBound = 0;
     int higherBound = tree->numberOfKeys - 1;
-    /* TODO: Make binary search */
+
+#ifdef DEBUG
+    printf("Lower: %d | Middle: %d | Higher: %d\n", lowerBound, middle, higherBound);
+#endif
+
+    while(lowerBound < higherBound - 1){
+        middle = lowerBound + (higherBound - lowerBound)/2;
+        if(compareBtreeElements(tree->elements[middle], element) < 0)
+            lowerBound = middle;
+        else
+            higherBound = middle;
+    }
+    middle = lowerBound;
+
+#ifdef DEBUG
+    printf("Lower: %d | Middle: %d | Higher: %d\n", lowerBound, middle, higherBound);
+    printf("\n\n");
+#endif
+
     while (middle < higherBound &&
            compareBtreeElements(tree->elements[middle], element) < 0)
       middle++;
