@@ -4,17 +4,18 @@
 
 #include "misc.h"
 
+#ifdef DEBUG
+/* Print one Btree element */
 void printBtreeElement(btreeElement *element, int i) {
   char *value = "Empty";
-  if (element->value != NULL)
+  if (element->value)
     value = element->value;
   printf("Element %d with key %s and value %s\n", i, element->key, value);
 }
 
+/* Print a Btree recursively */
 void printBtree(btree *tree, int depth) {
-  if (tree == NULL)
-    printf("Tree is NULL at depth %d\n", depth);
-  else {
+  if (tree) {
     printf("BTree on depth %d with %d keys\n", depth, tree->numberOfKeys);
     for (int i = 0; i < tree->numberOfKeys; i++)
       printBtreeElement(tree->elements[i], i);
@@ -24,34 +25,33 @@ void printBtree(btree *tree, int depth) {
       printf("Printing child %d\n", i);
       printBtree(tree->children[i], depth + 1);
     }
+    else printf("Tree is NULL at depth %d\n", depth);
   }
 }
-
-btreeElement *allocateBtreeElement() {
-#ifdef DEBUG
-  printf("Allocating btree element\n");
 #endif
+
+/* Allocate space for one Btree element and initialize it */
+btreeElement *allocateBtreeElement() {
   btreeElement *retval = nullSafeMalloc(sizeof(btreeElement));
   retval->value = NULL;
   return retval;
 }
 
+/* Allocate space for one Btree and initialize it */
 btree *allocateBtree() {
-#ifdef DEBUG
-  printf("Allocating btree\n");
-#endif
   btree *retval = nullSafeMalloc(sizeof(btree));
-  for(int i=0; i<NUMBER_OF_BTREE_KEYS; ++i)
-      retval->children[i] = NULL;
+  for (int i = 0; i < NUMBER_OF_BTREE_KEYS; i++) {
+    retval->elements[i] = NULL;
+    retval->children[i] = NULL;
+  }
+  retval->children[NUMBER_OF_BTREE_KEYS - 1] = NULL;
   retval->parent = NULL;
   retval->numberOfKeys = 0;
   return retval;
 }
 
+/* Allocate space for one tempBtree and initialize it */
 tempBtree *allocateTempBtree() {
-#ifdef DEBUG
-  printf("Allocating temp btree\n");
-#endif
   tempBtree *retval = nullSafeMalloc(sizeof(tempBtree));
   retval->children[0] = NULL;
   retval->children[1] = NULL;
@@ -59,48 +59,43 @@ tempBtree *allocateTempBtree() {
   return retval;
 }
 
+/* Compare 2 Btree elements based on their key values  */
 int compareBtreeElements(btreeElement *e1, btreeElement *e2) {
   return strcmp(e1->key, e2->key);
 }
 
+/* Free the space occipied by a Btree Element */
 void freeBtreeElement(btreeElement *e1) {
-#ifdef DEBUG
-  printf("Freeing btree element\n");
-#endif
-  if (e1->value != NULL) {
+  if (e1) {
     free(e1->value);
+    free(e1);
   }
-  free(e1);
 }
 
+/* Free the space occipied by a Btree and its children */
 void freeBtree(btree *tree) {
-#ifdef DEBUG
-  printf("Freeing btree\n");
-#endif
-  if (tree->elements[0] != NULL)
+  if (tree == NULL)
+    return;
+  if (tree->elements[0])
     for (int i = 0; i < tree->numberOfKeys; i++)
       freeBtreeElement(tree->elements[i]);
-  if (tree->children[0] != NULL)
+  if (tree->children[0])
     for (int i = 0; i < tree->numberOfKeys + 1; i++)
       freeBtree(tree->children[i]);
   free(tree);
 }
 
-void freeTempBtree(tempBtree *tree) {
-#ifdef DEBUG
-  printf("Freeing temp btree\n");
-#endif
-  free(tree);
-}
+/* Free the space occipied by a tempBtree */
+void freeTempBtree(tempBtree *tree) { free(tree); }
 
+/* Insert a temp Btree in a Btree and return a temp Btree if it is needed */
 tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
   int i = *index;
-//  btree *tree = *t;
   if (tree->numberOfKeys < NUMBER_OF_BTREE_KEYS) {
     for (int j = tree->numberOfKeys; j > i; j--)
       tree->elements[j] = tree->elements[j - 1];
     tree->elements[i] = element->element;
-    if (tree->children[0] != NULL) {
+    if (tree->children[0]) {
       for (int j = tree->numberOfKeys + 1; j > i + 1; j--)
         tree->children[j] = tree->children[j - 1];
       free(tree->children[i]);
@@ -110,7 +105,6 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
       tree->children[i + 1]->parent = tree;
     }
     tree->numberOfKeys++;
-    return NULL;
   } else {
     tempBtree *retval = allocateTempBtree();
     /* Initialize the left and right subtrees */
@@ -119,8 +113,8 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
     btree *rightTree = allocateBtree();
     rightTree->numberOfKeys = NUMBER_OF_BTREE_KEYS / 2;
 
-    /*
-     * Put all elements in a temporal list with the new element on the right position
+    /* Put all elements in a temporal list with the new element on the right
+     * position
      */
     btreeElement *allElements[NUMBER_OF_BTREE_KEYS + 1];
     for (int j = 0; j < i; j++)
@@ -131,7 +125,7 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
 
     /* If there are children, put them all in a list with the new children in
      * the right positions*/
-    if (element->children[0] != NULL) {
+    if (element->children[0]) {
       btree *children[NUMBER_OF_BTREE_KEYS + 2];
       for (int j = 0; j < i; j++)
         children[j] = tree->children[j];
@@ -139,14 +133,6 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
       children[i + 1] = element->children[1];
       for (int j = i + 1; j < NUMBER_OF_BTREE_KEYS + 1; j++)
         children[j + 1] = tree->children[j];
-#ifdef DEBUG
-      printf("\n");
-      printf("Printing %d temp children\n", NUMBER_OF_BTREE_KEYS + 2);
-      for (int i = 0; i < NUMBER_OF_BTREE_KEYS + 2; i++)
-        printBtree(children[i], 400);
-      printf("---\n");
-      printf("\n");
-#endif
       for (int i = 0; i < NUMBER_OF_BTREE_KEYS / 2 + 1; i++) {
         leftTree->children[i] = children[i];
         leftTree->children[i]->parent = leftTree;
@@ -155,12 +141,6 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
       }
       /* Otherwise the children of the new tempBtree are both NULL */
     }
-#ifdef DEBUG
-    for (int insertIndex = 0; insertIndex < NUMBER_OF_BTREE_KEYS + 1;
-         insertIndex++)
-      printf("Btree-element in temp list: key: %s | value: %s\n",
-             allElements[insertIndex]->key, allElements[insertIndex]->value);
-#endif
 
     /* The middle element is the element which needs to go up*/
     retval->element = allElements[NUMBER_OF_BTREE_KEYS / 2];
@@ -172,17 +152,12 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *element, int *index) {
     }
     retval->children[0] = leftTree;
     retval->children[1] = rightTree;
-#ifdef DEBUG
-    printf("TO UP KEY: %s\n", retval->element->key);
-    for (int k = 0; k < NUMBER_OF_BTREE_KEYS + 1; k++) {
-      printf("-- key: %s | value: %s | index:%d\n", allElements[k]->key,
-             allElements[k]->value, k);
-    }
-#endif
     return retval;
   }
+  return NULL;
 }
 
+/* Add a temp Btree to the Btree */
 btree *addToBtree(btree *root, tempBtree *element) {
   int treeIndex = 0;
   bool found = false;
@@ -198,34 +173,18 @@ btree *addToBtree(btree *root, tempBtree *element) {
     tempBtree *temp = element;
     searchElementOnDepth(tree, temp->element, &i, &found, 1);
     temp = insertTempBtreeInBtree(tree, element, &i);
-#ifdef DEBUG
-    printBtree(root, 200);
-#endif
-    while (temp != NULL && tree->parent != NULL) {
+    while (temp && tree->parent) {
       tree = tree->parent;
       i = 0;
       found = false;
       searchElementOnDepth(tree, temp->element, &i, &found, 1);
       tempBtree *nextTemp = insertTempBtreeInBtree(tree, temp, &i);
       freeTempBtree(temp);
-#ifdef DEBUG
-      printBtree(root, 500);
-#endif
       temp = nextTemp;
     }
 
     /* Change the root if it's needed*/
-    if (temp != NULL && tree->parent == NULL) {
-#ifdef DEBUG
-      printf("CHANGING ROOT!!! Adding key %s\n", temp->element->key);
-      printf("\nFirst tree to add:\n");
-      printBtree(tree->children[0], 600);
-      printf("\nSecond tree to add:\n");
-      printBtree(tree->children[1], 700);
-      printf("\n");
-      printBtree(root, 800);
-      printf("\n");
-#endif
+    if (temp && tree->parent == NULL) {
       root->elements[0] = NULL;
       root->children[0] = NULL;
       freeBtree(root);
@@ -238,21 +197,18 @@ btree *addToBtree(btree *root, tempBtree *element) {
       newRoot->children[1]->parent = newRoot;
       root = newRoot;
     }
-    free(NULL);
     freeTempBtree(temp);
   }
-#ifdef DEBUG
-  printBtree(root, 1000);
-  printf("----------------------------------------\n\n\n");
-#endif
   return root;
 }
 
+/* Search an element in the Btree */
 btree *searchElement(btree *tree, btreeElement *element, int *treeIndex,
                      bool *found) {
   return searchElementOnDepth(tree, element, treeIndex, found, -1);
 }
 
+/* Search an element in the Btree with a maximum depth level */
 btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
                             bool *found, int maxDepth) {
   *treeIndex = 0;
@@ -263,27 +219,17 @@ btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
   int currentDepth = 0;
   while (!*found && !isLeaf && (maxDepth > currentDepth || maxDepth == -1)) {
     currentDepth++;
-    middle = 0;
     int lowerBound = 0;
     int higherBound = tree->numberOfKeys - 1;
 
-#ifdef DEBUG
-    printf("Lower: %d | Middle: %d | Higher: %d\n", lowerBound, middle, higherBound);
-#endif
-
-    while(lowerBound < higherBound - 1){
-        middle = lowerBound + (higherBound - lowerBound)/2;
-        if(compareBtreeElements(tree->elements[middle], element) < 0)
-            lowerBound = middle;
-        else
-            higherBound = middle;
+    while (lowerBound < higherBound - 1) {
+      middle = lowerBound + (higherBound - lowerBound) / 2;
+      if (compareBtreeElements(tree->elements[middle], element) < 0)
+        lowerBound = middle;
+      else
+        higherBound = middle;
     }
     middle = lowerBound;
-
-#ifdef DEBUG
-    printf("Lower: %d | Middle: %d | Higher: %d\n", lowerBound, middle, higherBound);
-    printf("\n\n");
-#endif
 
     while (middle < higherBound &&
            compareBtreeElements(tree->elements[middle], element) < 0)
@@ -306,11 +252,12 @@ btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
   return tree;
 }
 
+/* Delete an element in the Btree */
 void deleteElement(btree *root, btreeElement *element) {
   int treeIndex = 0;
   bool found = false;
   btree *tree = searchElement(root, element, &treeIndex, &found);
-  if (found && tree->elements[treeIndex]->value != NULL) {
+  if (found && tree->elements[treeIndex]->value) {
     /* Make the element a tombstone */
     free(tree->elements[treeIndex]->value);
     tree->elements[treeIndex]->value = NULL;
@@ -319,33 +266,28 @@ void deleteElement(btree *root, btreeElement *element) {
     printf("?\n");
 }
 
-int rangeQuery(btree *tree, char *lowerBound, char *upperBound) {
+/* Count the number of elements between lowerBound and upperBound */
+int rangeQuery(btree *tree, btreeElement *lowerBound,
+               btreeElement *upperBound) {
+  if (tree == NULL || tree->numberOfKeys == 0)
+    return 0;
+
+  int lowerIndex = 0;
+  bool lowerFound = false;
+  searchElementOnDepth(tree, lowerBound, &lowerIndex, &lowerFound, 1);
+
+  int upperIndex = 0;
+  bool upperFound = false;
+  searchElementOnDepth(tree, upperBound, &upperIndex, &upperFound, 1);
+
   int retval = 0;
-  int treeHasChildren = tree->children[0] != NULL;
-  int numberOfKeysInTree = tree->numberOfKeys;
-  if(numberOfKeysInTree == 0)
-      return 0;
-
-  short cmpvalue = strcmp(tree->elements[0]->key, lowerBound);
-  if (cmpvalue > 0 && treeHasChildren)
-    retval += rangeQuery(tree->children[0], lowerBound, upperBound);
-
-  for (int i = 0; i < numberOfKeysInTree; i++)
-    if (tree->elements[i]->value != NULL &&
-        strcmp(tree->elements[i]->key, lowerBound) >= 0 &&
-        strcmp(tree->elements[i]->key, upperBound) <= 0)
+  for (int i = lowerIndex; i < upperIndex; i++)
+    if (tree->elements[i]->value)
       ++retval;
 
-  for (int childIndex = 1; childIndex < numberOfKeysInTree; childIndex++) {
-    short cmpvalue1 = strcmp(tree->elements[childIndex]->key, lowerBound);
-    short cmpvalue2 = strcmp(tree->elements[childIndex - 1]->key, upperBound);
-    if ((cmpvalue1 > 0 || cmpvalue2 < 0) && treeHasChildren)
-      retval += rangeQuery(tree->children[childIndex], lowerBound, upperBound);
-  }
+  if (tree->children[0])
+    for (int i = lowerIndex; i < upperIndex + 1; ++i)
+      retval += rangeQuery(tree->children[i], lowerBound, upperBound);
 
-  cmpvalue = strcmp(tree->elements[numberOfKeysInTree - 1]->key, upperBound);
-  if (cmpvalue < 0 && treeHasChildren)
-    retval +=
-        rangeQuery(tree->children[numberOfKeysInTree], lowerBound, upperBound);
   return retval;
 }

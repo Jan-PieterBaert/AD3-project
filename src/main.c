@@ -17,11 +17,6 @@ int main(int argc, char *argv[]) {
     ungetc(ch, stdin);
     command *c = parseCommand();
 
-    /* #ifdef DEBUG */
-    /*     printf("Timestamp: %s | Command: %d | Value: %s\n", c->timestamp, */
-    /*            (int)c->type, c->value); */
-    /* #endif */
-
     if (c->type == commandAddElement) {
       btreeElement *element = allocateBtreeElement();
       strncpy(element->key, c->timestamp, TIMESTAMP_SIZE);
@@ -53,29 +48,27 @@ int main(int argc, char *argv[]) {
 
     } else if (c->type == commandQueryRange) {
       int numberInQuery;
-      if (strcmp(c->timestamp, c->value)<=0)
-        numberInQuery = rangeQuery(tree, c->timestamp, c->value);
+      c->timestamp[TIMESTAMP_SIZE - 1] = '\0';
+      c->value[TIMESTAMP_SIZE - 1] = '\0';
+      btreeElement *element1 = allocateBtreeElement();
+      strncpy(element1->key, c->timestamp, TIMESTAMP_SIZE);
+      btreeElement *element2 = allocateBtreeElement();
+      strncpy(element2->key, c->value, TIMESTAMP_SIZE);
+
+      if (strcmp(c->timestamp, c->value) <= 0)
+        numberInQuery = rangeQuery(tree, element1, element2);
       else
-        numberInQuery = rangeQuery(tree, c->value, c->timestamp);
+        numberInQuery = rangeQuery(tree, element2, element1);
       printf("%d\n", numberInQuery);
+      freeBtreeElement(element1);
+      freeBtreeElement(element2);
     } else
       printErrorAndExit(UNKNOWN_COMMAND_EXIT_CODE,
                         "Unable to parse commands correctly");
 
-#ifdef DEBUG
-    printf("Number of keys in root: %d\n", tree->numberOfKeys);
-    printf("Root elements:\n");
-    for (int i = 0; i < tree->numberOfKeys; i++)
-      printf("-- key: %s | value: %s\n", tree->elements[i]->key,
-             tree->elements[i]->value);
-    printf("\n");
-#endif
     freeCommand(c);
     ch = getc(stdin);
   }
-#ifdef DEBUG
-  printBtree(tree, 0);
-#endif
   freeBtree(tree);
   return 0;
 }

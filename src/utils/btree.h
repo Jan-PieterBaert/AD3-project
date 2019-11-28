@@ -38,6 +38,6 @@ btree *searchElement(btree *tree, btreeElement *element, int *index,
 btree *searchElementOnDepth(btree *tree, btreeElement *element, int *treeIndex,
                             bool *found, int maxDepth);
 void deleteElement(btree *tree, btreeElement *element);
-int rangeQuery(btree* tree, char* lowerBound, char* upperBound);
+int rangeQuery(btree *tree, btreeElement *lowerBound, btreeElement *upperBound);
 
 #endif
