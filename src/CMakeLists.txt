@@ -10,4 +10,10 @@ add_executable(history
         utils/misc.c
         )
 
-add_definitions(-DCACHESIZE=8192 -DCACHEASSOC=8 -DCACHELINESIZE=64 -Werror -O3)
+add_definitions(
+    -DCACHESIZE=8192
+    -DCACHEASSOC=8
+    -DCACHELINESIZE=64
+    -O3
+    -g
+    )
