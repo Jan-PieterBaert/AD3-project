@@ -2,4 +2,3 @@ main.c
 utils/commandParser.c
 utils/btree.c
 utils/misc.c
-utils/globs.h
