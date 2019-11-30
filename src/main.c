@@ -2,6 +2,7 @@
 #include "utils/commandParser.h"
 #include "utils/globs.h"
 #include "utils/misc.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -39,6 +40,7 @@ int main(int argc, char *argv[]) {
       int searchIndex;
       bool found = false;
       btree *result = searchElement(tree, element, &searchIndex, &found);
+
       if (found && result->elements[searchIndex].value != NULL)
         printf("!%s\n", result->elements[searchIndex].value);
       else
@@ -46,16 +48,17 @@ int main(int argc, char *argv[]) {
 
     } else if (c->type == commandQueryRange) {
       int numberInQuery;
-      c->timestamp[TIMESTAMP_SIZE - 1] = '\0';
-      c->value[TIMESTAMP_SIZE - 1] = '\0';
       btreeElement element1, element2;
       strncpy(element1.key, c->timestamp, TIMESTAMP_SIZE);
       strncpy(element2.key, c->value, TIMESTAMP_SIZE);
 
+      /* Determine which timestamp is the lowerbound
+       * and which one is the upperbound */
       if (strcmp(c->timestamp, c->value) <= 0)
         numberInQuery = rangeQuery(tree, element1, element2);
       else
         numberInQuery = rangeQuery(tree, element2, element1);
+
       printf("%d\n", numberInQuery);
     } else
       printErrorAndExit(UNKNOWN_COMMAND_EXIT_CODE,

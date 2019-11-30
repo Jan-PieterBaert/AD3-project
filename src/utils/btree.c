@@ -1,8 +1,8 @@
 #include "btree.h"
+#include "misc.h"
+
 #include <stdio.h>
 #include <string.h>
-
-#include "misc.h"
 
 #ifdef DEBUG
 /* Print one Btree element */

@@ -1,9 +1,9 @@
+#include "commandParser.h"
+#include "misc.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "commandParser.h"
-#include "misc.h"
 
 commandType charToCommandType(char c) {
   switch (c) {

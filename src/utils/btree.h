@@ -2,6 +2,7 @@
 #define BTREE
 
 #include "globs.h"
+
 #include <stdbool.h>
 
 typedef struct btreeElement {

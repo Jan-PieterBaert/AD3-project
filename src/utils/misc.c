@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "globs.h"
 #include "misc.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 void *nullSafeMalloc(size_t size) {
   void *retval = NULL;

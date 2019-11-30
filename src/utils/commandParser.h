@@ -2,6 +2,7 @@
 #define COMMANDPARSER
 
 #include "globs.h"
+
 #define COMMAND_VALUE_START 25
 #define COMMAND_VALUE_MULTIPLY_STEP 5
 
