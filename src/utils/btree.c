@@ -290,7 +290,7 @@ int rangeQuery(btree *tree, btreeElement lowerBound, btreeElement upperBound) {
   searchElementOnDepth(tree, upperBound, &upperIndex, &upperFound, 1);
 
   int retval = 0;
-  for (int i = lowerIndex; i < upperIndex; i++)
+  for (int i = lowerIndex; i < upperIndex; ++i)
     if (tree->elements[i].value)
       ++retval;
 
