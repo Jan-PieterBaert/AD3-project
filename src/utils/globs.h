@@ -15,6 +15,5 @@
 #define OUT_OF_MEMORY_EXIT_CODE 12 /* There is no memory anymore */
 
 /* Debug the code */
-// #define DEBUG
 
 #endif

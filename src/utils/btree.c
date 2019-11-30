@@ -6,11 +6,12 @@
 
 #ifdef DEBUG
 /* Print one Btree element */
-void printBtreeElement(btreeElement *element, int i) {
+void printBtreeElement(btreeElement element, int i) {
   char *value = "Empty";
-  if (element->value)
-    value = element->value;
-  printf("Element %d with key %s and value %s\n", i, element->key, value);
+  if (element.value)
+    value = element.value;
+  printf("Element %d with key %.*s and value %s\n", i, TIMESTAMP_SIZE,
+         element.key, value);
 }
 
 /* Print a Btree recursively */
@@ -25,8 +26,8 @@ void printBtree(btree *tree, int depth) {
       printf("Printing child %d\n", i);
       printBtree(tree->children[i], depth + 1);
     }
-    else printf("Tree is NULL at depth %d\n", depth);
-  }
+  } else
+    printf("Tree is NULL at depth %d\n", depth);
 }
 #endif
 
@@ -93,16 +94,6 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *tempTree,
     btree *rightTree = allocateBtree();
     rightTree->numberOfKeys = NUMBER_OF_BTREE_KEYS / 2;
 
-    /* Put all elements in a temporal list with the new tempTree on the right
-     * position
-     */
-    btreeElement allElements[NUMBER_OF_BTREE_KEYS + 1];
-    for (int j = 0; j < i; j++)
-      allElements[j] = tree->elements[j];
-    allElements[i] = tempTree->element;
-    for (int j = i + 1; j < NUMBER_OF_BTREE_KEYS + 1; j++)
-      allElements[j] = tree->elements[j - 1];
-
     /* If there are children, put them all in a list with the new children in
      * the right positions*/
     if (tempTree->children[0]) {
@@ -123,13 +114,53 @@ tempBtree *insertTempBtreeInBtree(btree *tree, tempBtree *tempTree,
     }
 
     /* The middle tempTree is the tempTree which needs to go up*/
-    retval->element = allElements[NUMBER_OF_BTREE_KEYS / 2];
+    /* retval->element = allElements[NUMBER_OF_BTREE_KEYS / 2]; */
+
+#ifdef DEBUG
+    printf("i:%d\n", i);
+#endif
 
     /* The other elements can be copied over to the left/right-subtrees*/
-    for (int j = 0; j < NUMBER_OF_BTREE_KEYS / 2; j++) {
-      leftTree->elements[j] = allElements[j];
-      rightTree->elements[j] = allElements[j + NUMBER_OF_BTREE_KEYS / 2 + 1];
+    if (i < NUMBER_OF_BTREE_KEYS / 2) {
+      for (int j = 0; j < NUMBER_OF_BTREE_KEYS / 2; j++)
+        rightTree->elements[j] = tree->elements[j + NUMBER_OF_BTREE_KEYS / 2];
+
+      for (int j = 0; j < i; j++)
+        leftTree->elements[j] = tree->elements[j];
+      leftTree->elements[i] = tempTree->element;
+      for (int j = i + 1; j < NUMBER_OF_BTREE_KEYS / 2; j++)
+        leftTree->elements[j] = tree->elements[j - 1];
+      retval->element = tree->elements[NUMBER_OF_BTREE_KEYS / 2 - 1];
+
+    } else if (i > NUMBER_OF_BTREE_KEYS / 2) {
+      for (int j = 0; j < NUMBER_OF_BTREE_KEYS / 2; j++)
+        leftTree->elements[j] = tree->elements[j];
+
+      i -= NUMBER_OF_BTREE_KEYS / 2;
+      --i;
+      for (int j = 0; j < i; j++)
+        rightTree->elements[j] =
+            tree->elements[j + NUMBER_OF_BTREE_KEYS / 2 + 1];
+      rightTree->elements[i] = tempTree->element;
+      for (int j = i + 1; j < NUMBER_OF_BTREE_KEYS / 2; j++)
+        rightTree->elements[j] = tree->elements[j + NUMBER_OF_BTREE_KEYS / 2];
+
+      retval->element = tree->elements[NUMBER_OF_BTREE_KEYS / 2];
+    } else {
+      retval->element = tempTree->element;
+      for (int j = 0; j < NUMBER_OF_BTREE_KEYS / 2; j++) {
+        leftTree->elements[j] = tree->elements[j];
+        rightTree->elements[j] = tree->elements[j + NUMBER_OF_BTREE_KEYS / 2];
+      }
     }
+#ifdef DEBUG
+    printBtree(leftTree, 100);
+    printBtree(rightTree, 200);
+    printf("To up element\n");
+    printBtreeElement(retval->element, 0);
+    printf("\n");
+#endif
+
     retval->children[0] = leftTree;
     retval->children[1] = rightTree;
     return retval;
