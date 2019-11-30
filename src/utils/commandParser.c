@@ -24,9 +24,9 @@ command *parseCommand() {
   command *retval = (command *)nullSafeMalloc(sizeof(command));
   char c = getc(stdin);
   retval->type = charToCommandType(c);
-  for (int i = 0; i < TIMESTAMP_SIZE - 1; i++)
+  for (int i = 0; i < TIMESTAMP_SIZE; i++)
     retval->timestamp[i] = getc(stdin);
-  retval->timestamp[TIMESTAMP_SIZE - 1] = '\0';
+  /* retval->timestamp[TIMESTAMP_SIZ - 1] = '\0'; */
   if (retval->type == commandAddElement) {
     c = getc(stdin);
     if ((char)c != ' ')

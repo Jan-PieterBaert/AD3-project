@@ -18,11 +18,11 @@ int main(int argc, char *argv[]) {
     command *c = parseCommand();
 
     if (c->type == commandAddElement) {
-      btreeElement *element = allocateBtreeElement();
-      strncpy(element->key, c->timestamp, TIMESTAMP_SIZE);
+      btreeElement element;
+      strncpy(element.key, c->timestamp, TIMESTAMP_SIZE);
       int valueLength = strlen(c->value) + 1;
-      element->value = nullSafeMalloc(valueLength);
-      strncpy(element->value, c->value, valueLength);
+      element.value = nullSafeMalloc(valueLength);
+      strncpy(element.value, c->value, valueLength);
       tempBtree *tempTree = allocateTempBtree();
       tempTree->element = element;
       tree = addToBtree(tree, tempTree);
@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
       int searchIndex;
       bool found = false;
       btree *result = searchElement(tree, element, &searchIndex, &found);
-      if (found && result->elements[searchIndex]->value != NULL)
-        printf("!%s\n", result->elements[searchIndex]->value);
+      if (found && result->elements[searchIndex].value != NULL)
+        printf("!%s\n", result->elements[searchIndex].value);
       else
         printf("?\n");
 
