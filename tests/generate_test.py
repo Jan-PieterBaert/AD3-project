@@ -61,8 +61,9 @@ def range_query(timestamp1: int):
 
 
 for i in range(int(args.size)):
-    random_fun = random.randint(0, 4)
-    if not args.dynamic:
+    if args.dynamic:
+        random_fun = int(i//2 % 4)
+    else:
         random_fun = int(i/(int(args.size)/4))
     retval = None
     timestamp = random.randint(0, upperbound)
