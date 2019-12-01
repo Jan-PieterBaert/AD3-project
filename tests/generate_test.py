@@ -61,18 +61,18 @@ def range_query(timestamp1: int):
 
 
 for i in range(int(args.size)):
-    random_fun = random.randint(0, 8)
+    random_fun = random.randint(0, 4)
     if not args.dynamic:
-        random_fun = int(i/(int(args.size)/8))
+        random_fun = int(i/(int(args.size)/4))
     retval = None
     timestamp = random.randint(0, upperbound)
-    if random_fun % 4 == 0:
+    if random_fun == 0:
         add_element(timestamp)
-    elif random_fun % 4 == 1:
+    elif random_fun == 1:
         if random.random() < 0.5 and values.keys():
             timestamp = random.choice(list(values.keys()))
         retval = delete_element(timestamp)
-    elif random_fun % 4 == 2:
+    elif random_fun == 2:
         if random.random() < 0.95 and values.keys():
             timestamp = random.choice(list(values.keys()))
         retval = search_element(timestamp)
